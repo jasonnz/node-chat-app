@@ -18,7 +18,16 @@ var scrollToBottom = function() {
 };
 
 socket.on('connect', function() {
-    console.log('Connected to server');
+    // console.log('Connected to server');
+    var params = $.deparam(window.location.search);
+    socket.emit('join', params, function(err) {
+        if (err) {
+            alert(err);
+            window.location.href = '/';
+        } else {
+            console.log('No error');
+        }
+    });
 });
 
 socket.on('disconnect', function() {
@@ -55,12 +64,12 @@ socket.on('newLocationMessage', function(message) {
     scrollToBottom();
 });
 
-socket.emit('createMessage', {
-    from: 'Frank',
-    text: 'Hi there!'
-}, function(data) {
-    console.log('Got the ack: ', data);
-});
+// socket.emit('createMessage', {
+//     from: 'Frank',
+//     text: 'Hi there!'
+// }, function(data) {
+//     console.log('Got the ack: ', data);
+// });
 
 $('#message-form').on('submit', function(e) {
     e.preventDefault();
