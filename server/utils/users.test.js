@@ -49,12 +49,12 @@ describe('Users', () => {
 
     it('should remove a user', () => {
         var userList = users.removeUser(1);
-         expect(userList.length).toEqual(2);
+        expect(userList.length).toEqual(1);
     });
 
     it('should not remove a user', () => {
         var userList = users.removeUser(100);
-        expect(userList.length).toEqual(3);
+        expect(userList.length).toEqual(0);
     });
 
     it('should find a user', () => {

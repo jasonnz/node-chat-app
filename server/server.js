@@ -1,19 +1,19 @@
 const path = require('path');
 const http = require('http');
-const publicPath = path.join(__dirname, '../public');
 const express = require('express');
 const bodyParser = require('body-parser');
 const socketIO = require('socket.io');
+
 const {generateMessage, generateLocationMessage} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users');
+
+const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
-
-// console.log(__dirname + '/../public');
-// console.log(publicPath);
-
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
+var users = new Users();
 
 app.use(express.static(publicPath));
 
@@ -22,10 +22,15 @@ io.on('connection', (socket)=> {
     socket.on('join', (params, callback) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
             console.log('params: ', params);
-            callback('Name and Room name are required!');
+            return callback('Name and Room name are required!');
         }
 
         socket.join(params.room);
+        users.removeUser(socket.id);
+        users.addUser(socket.id, params.name, params.room);
+
+        io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+
         // socket.leave('Name of group');
         // io.emit -> io.to('Name of group').emit;
         // socket.broadcast.emit -> socket.broadcast.to('Name of group').emit
@@ -46,8 +51,17 @@ io.on('connection', (socket)=> {
         io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     });
 
-    socket.on('disconnect', (socket)=> {
-        console.log('Disconnected from client');
+    socket.on('disconnect', () => {
+        
+        console.log('socket.id ', socket.id);
+
+        var user = users.removeUser(socket.id);
+        if (user) {
+            console.log('user ', user);
+            io.to(user[0].room).emit('updateUserList', users.getUserList(user[0].room));
+            io.to(user[0].room).emit('newMessage', generateMessage('Admin', `${user[0].name} has left.`));
+        }
+
     });
 });
 
