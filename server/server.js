@@ -42,13 +42,20 @@ io.on('connection', (socket)=> {
     });
 
     socket.on('createMessage', (message, callback)=> {
-        console.log('createMessage');
-        io.emit('newMessage', generateMessage(message.from, message.text, new Date().getTime()));
+
+        var user =  users.getUser(socket.id);
+        if (user && isRealString(message.text)) {
+            io.to(user[0].room).emit('newMessage', generateMessage(user[0].name, message.text, new Date().getTime()));
+        }
+        
         callback();
     });
 
     socket.on('createLocationMessage', (coords)=> {
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        var user =  users.getUser(socket.id);
+        if (user) {
+            io.to(user[0].room).emit('newLocationMessage', generateLocationMessage(user[0].name, coords.latitude, coords.longitude));
+        }
     });
 
     socket.on('disconnect', () => {
@@ -57,7 +64,6 @@ io.on('connection', (socket)=> {
 
         var user = users.removeUser(socket.id);
         if (user) {
-            console.log('user ', user);
             io.to(user[0].room).emit('updateUserList', users.getUserList(user[0].room));
             io.to(user[0].room).emit('newMessage', generateMessage('Admin', `${user[0].name} has left.`));
         }
