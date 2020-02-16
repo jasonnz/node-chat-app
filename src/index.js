@@ -21,14 +21,21 @@ let count = 0
 io.on('connection', (socket) => {
     console.log('New web socket connection')
 
-    socket.emit('countUpdated', count)
+    // socket.emit('countUpdated', count)
 
-    socket.on('increment', () => {
-        count+=1
-        // socket.emit('countUpdated', count) emits to connected client
-        // io.emit emits to all
-        io.emit('countUpdated', count)
+    // socket.on('increment', () => {
+    //     count+=1
+    //     // socket.emit('countUpdated', count) emits to connected client
+    //     // io.emit emits to all
+    //     io.emit('countUpdated', count)
+    // })
+
+    // socket.emit('welcome', 'Welcome to the web page')
+
+    socket.on('sendMessage', (message) => {
+        io.emit('message', message)
     })
+
 })
 
 // Listen on port
