@@ -16,24 +16,18 @@ app.get('/index', (req, res) => {
     res.render('index')
 })
 
-let count = 0
-
 io.on('connection', (socket) => {
-    console.log('New web socket connection')
+    console.log('New web socket connection')    
 
-    // socket.emit('countUpdated', count)
-
-    // socket.on('increment', () => {
-    //     count+=1
-    //     // socket.emit('countUpdated', count) emits to connected client
-    //     // io.emit emits to all
-    //     io.emit('countUpdated', count)
-    // })
-
-    // socket.emit('welcome', 'Welcome to the web page')
+    socket.emit('message', 'Welcome!')
+    socket.broadcast.emit('message', 'A new user has joined!')
 
     socket.on('sendMessage', (message) => {
         io.emit('message', message)
+    })
+
+    socket.on('disconnect', () => {
+        socket.broadcast.emit('message', 'A use has left')
     })
 
 })
