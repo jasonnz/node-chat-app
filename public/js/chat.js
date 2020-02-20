@@ -19,8 +19,28 @@ document.querySelector('#message-form').addEventListener('submit', (e) => {
  
     // GETS e.target.elements.message the name from the form
     const message = e.target.elements.message.value
-    console.log('Did it run! ', message)
-    socket.emit('sendMessage', message)
+
+    socket.emit('sendMessage', message, (message) => {
+        console.log(`The message was deliverd ${message}`)
+    })
+})
+
+document.querySelector('#send-location').addEventListener('click', () => {
+    if (!navigator.geolocation) {
+        return alert('Upgrade your browser, as geolocaiton is not suported')
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        console.log(position)
+
+        socket.emit('shareLocation', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+        }, (message) => {
+            console.log(`${message}`)
+        })
+
+    })
 })
 
 socket.on('message', (message) => {
