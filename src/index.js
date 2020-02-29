@@ -8,6 +8,7 @@ const app = express()
 const server = http.createServer(app)
 const port = process.env.PORT || 3000
 const io = socketio(server)
+const { generateMessage } = require('./utils/messages')
 
 // Setup static directory to server
 app.use(express.static(path.join(__dirname, '../public')))
@@ -20,8 +21,8 @@ app.get('/index', (req, res) => {
 io.on('connection', (socket) => {
     console.log('New web socket connection')
 
-    socket.emit('message', 'Welcome!')
-    socket.broadcast.emit('message', 'A new user has joined!')
+    socket.emit('message', generateMessage('Welcome!'))
+    socket.broadcast.emit('message', generateMessage('A new user has joined!'))
 
     socket.on('sendMessage', (message, callback) => {
         
@@ -31,12 +32,12 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed!')
         }
 
-        io.emit('message', message)
+        io.emit('message', generateMessage(message))
         callback('All good ACKd')
     })
 
     socket.on('disconnect', () => {
-        socket.broadcast.emit('message', 'A use has left')
+        socket.broadcast.emit(generateMessage('message', 'A use has left'))
     })
 
     socket.on('shareLocation', (message, callback) => {

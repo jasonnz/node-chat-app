@@ -10,7 +10,6 @@
 
         <div id="messages"></div>
 
-        <button id = "increment">+1</button>
         <form id="message-form">
             <input name="message" placeholder="Message" />
             <button>Send</button>
@@ -20,7 +19,7 @@
         
         <script id="message-template" type="text/html">
             <div>
-                {{message}}
+                <p>{{createdAt}} - {{message}}</p>
             </div>
         </script>
 
